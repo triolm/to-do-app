@@ -10,8 +10,20 @@
 
 <body>
     <h1>Note App</h1>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi veniam placeat, aut rem libero odio dolore quis
-        accusantium debitis quos vitae totam inventore velit qui repellat. Temporibus sapiente fugit nulla.</p>
+    <% for(note of notes) { %>
+        <div style="border: 1px solid black; margin: 5px;">
+            <h2>
+                <%= note.title %>
+            </h2>
+            <p>
+                <%= note.body %>
+            </p>
+            <p>
+                <a href="/notes/<%=note._id%>">View Note</a>
+            </p>
+        </div>
+
+        <% } %>
 </body>
 
 </html>

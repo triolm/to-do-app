@@ -1,15 +1,78 @@
 const express = require('express')
-const mongoose = require('mongoose')
-const path = require('path')
 const app = express();
+const methodOverride = require('method-override')
+
+const mongoose = require('mongoose')
+const path = require('path');
+const { title } = require('process');
+
+mongoose.connect('mongodb://localhost:27017/todoapp', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+        console.log("connection open")
+    })
+    .catch(err => {
+        console.log(err)
+    })
+
+mongoose.set('useFindAndModify', false);
+
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'))
+
+const noteSchema = new mongoose.Schema({
+    title: String,
+    body: String
+
+});
+
+const Note = mongoose.model('Note', noteSchema)
 
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
-app.get("/", (req, res) => {
-    res.render('index.ejs');
+app.get("/notes", async (req, res) => {
+    const notes = await Note.find({})
+    res.render('index.ejs', { notes });
 });
 
+app.get("/notes/new", async (req, res) => {
+    const notes = await Note.find({})
+    res.render('new.ejs', { notes });
+});
+
+app.post("/notes/new", async (req, res) => {
+    console.log(req.params, req.body);
+    const { title, body } = req.body
+    const newNote = new Note({ title, body });
+    await newNote.save();
+    res.redirect("/notes");
+})
+
+app.get("/notes/:id", async (req, res) => {
+    const { id } = req.params;
+    const note = await Note.findById(id);
+    res.render('show.ejs', { note });
+})
+
+app.get("/notes/:id/edit", async (req, res) => {
+    const { id } = req.params;
+    const note = await Note.findById(id);
+    res.render('edit.ejs', { note });
+})
+
+app.put("/notes/:id", async (req, res) => {
+    const { id } = req.params;
+    const { title, body } = req.body;
+    const note = await Note.findByIdAndUpdate(id, { title, body });
+    res.redirect(`/notes/${id}`);
+})
+
+app.delete("/notes/:id", async (req, res) => {
+    const { id } = req.params;
+    const { title, body } = req.body;
+    const note = await Note.findByIdAndDelete(id);
+    res.redirect('/notes/');
+})
 
 app.listen(3000, () => {
     console.log("listening on port 3000")

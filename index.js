@@ -1,8 +1,15 @@
-const express = require('express')
+const express = require('express');
 const app = express();
-const methodOverride = require('method-override')
+const methodOverride = require('method-override');
 
-const mongoose = require('mongoose')
+const TimeAgo = require('javascript-time-ago')
+// English.
+const en = require('javascript-time-ago/locale/en')
+TimeAgo.addDefaultLocale(en)
+// Create formatter (English).
+const timeAgo = new TimeAgo('en-US')
+
+const mongoose = require('mongoose');
 const path = require('path');
 const { title } = require('process');
 
@@ -20,8 +27,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'))
 
 const noteSchema = new mongoose.Schema({
-    title: String,
-    body: String
+    title: {
+        type: String,
+        required: true
+    },
+    body: {
+        type: String,
+    },
+    date: {
+        type: String
+    }
 
 });
 
@@ -41,17 +56,17 @@ app.get("/notes/new", async (req, res) => {
 });
 
 app.post("/notes/new", async (req, res) => {
-    console.log(req.params, req.body);
     const { title, body } = req.body
-    const newNote = new Note({ title, body });
+    const date = Date.now();
+    const newNote = new Note({ title, body, date });
     await newNote.save();
-    res.redirect("/notes");
+    res.redirect(`/notes/${newNote._id}`);
 })
 
 app.get("/notes/:id", async (req, res) => {
     const { id } = req.params;
     const note = await Note.findById(id);
-    res.render('show.ejs', { note });
+    res.render('show.ejs', { note, timeAgo });
 })
 
 app.get("/notes/:id/edit", async (req, res) => {
@@ -63,7 +78,8 @@ app.get("/notes/:id/edit", async (req, res) => {
 app.put("/notes/:id", async (req, res) => {
     const { id } = req.params;
     const { title, body } = req.body;
-    const note = await Note.findByIdAndUpdate(id, { title, body });
+    const date = Date.now();
+    const note = await Note.findByIdAndUpdate(id, { title, body, date });
     res.redirect(`/notes/${id}`);
 })
 

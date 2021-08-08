@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate')
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/users')
 
 const TimeAgo = require('javascript-time-ago')
 // English.
@@ -24,8 +27,21 @@ mongoose.connect('mongodb://localhost:27017/todoapp', { useNewUrlParser: true, u
 
 mongoose.set('useFindAndModify', false);
 
+
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+app.use((req, res, next) => {
+    console.log(req.session)
+    res.locals.currentUser = req.user;
+    next();
+})
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 const noteSchema = new mongoose.Schema({
     title: {
@@ -91,6 +107,31 @@ app.delete("/notes/:id", async (req, res) => {
     const note = await Note.findByIdAndDelete(id);
     res.redirect('/notes/');
 })
+
+app.get("/register", (req, res) => {
+    res.render('register.ejs')
+})
+app.get("/login", (req, res) => {
+    res.render('login.ejs')
+})
+
+app.post('/register', async (req, res) => {
+    const { email, username, password } = req.body;
+    const user = new User({ email, username })
+    const registeredUser = await User.register(user, password);
+    req.login(registeredUser, err => {
+        if (err) return next(err);
+        console.log('it works? maybe?')
+        res.redirect('/notes');
+    })
+
+})
+
+app.post("/login", passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), (req, res) => {
+    console.log(res.locals.currentUser)
+    res.redirect("/notes")
+})
+
 
 app.listen(3000, () => {
     console.log("listening on port 3000")

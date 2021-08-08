@@ -3,7 +3,7 @@
 
     <div class="row">
         <div class="card col-6 offset-3">
-            <form action="/notes/new" method="POST">
+            <form action="/notes/<%=note._id%>?_method=PUT" method="POST">
                 <div class="card-body">
                     <h2 class="pb-3">Edit Note</h2>
                     <div class="mb-3">

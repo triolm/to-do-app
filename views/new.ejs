@@ -1,25 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
+<% layout('layouts/boilerplate')%>
+    <title>New Note</title>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Note</title>
-</head>
-
-<body>
-    <h1>New Note</h1>
-    <form action="/notes/new" method="POST">
-        <label for="title">Note title</label>
-        <input type="text" name="title" id="title">
-        <br>
-        <label for="body">Note body</label>
-        <br>
-        <textarea name="body" id="body" cols="30" rows="10"></textarea>
-        <br>
-        <button>Create</button>
-    </form>
-</body>
-
-</html>
+    <div class="row">
+        <div class="card col-6 offset-3">
+            <form action="/notes/new" method="POST">
+                <div class="card-body">
+                    <h2 class="pb-3">New Note</h2>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Note Title</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="body" class="form-label">Note Body</label>
+                        <textarea name="body" id="body" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>

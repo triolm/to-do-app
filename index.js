@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const methodOverride = require('method-override');
+const ejsMate = require('ejs-mate')
 
 const TimeAgo = require('javascript-time-ago')
 // English.
@@ -24,7 +25,7 @@ mongoose.connect('mongodb://localhost:27017/todoapp', { useNewUrlParser: true, u
 mongoose.set('useFindAndModify', false);
 
 app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method'));
 
 const noteSchema = new mongoose.Schema({
     title: {
@@ -42,12 +43,13 @@ const noteSchema = new mongoose.Schema({
 
 const Note = mongoose.model('Note', noteSchema)
 
+app.engine('ejs', ejsMate)
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
 app.get("/notes", async (req, res) => {
     const notes = await Note.find({})
-    res.render('index.ejs', { notes });
+    res.render('index.ejs', { notes, timeAgo });
 });
 
 app.get("/notes/new", async (req, res) => {

@@ -1,10 +1,17 @@
 const express = require('express');
 const app = express();
+const session = require('express-session')
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate')
+const User = require('./models/users')
+const Note = require('./models/notes')
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+
+
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
-const User = require('./models/users')
+const passportLocalMongoose = require('passport-local-mongoose');
 
 const TimeAgo = require('javascript-time-ago')
 // English.
@@ -27,43 +34,40 @@ mongoose.connect('mongodb://localhost:27017/todoapp', { useNewUrlParser: true, u
 
 mongoose.set('useFindAndModify', false);
 
+const sessionConfig = {
+    secret: 'secret',
+    proxy: true,
+    resave: true,
+    saveUninitialized: true
+}
+
+mongoose.set('useCreateIndex', true);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+app.use(session(sessionConfig))
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(cookieParser(sessionConfig.secret))
+app.use(express.bodyParser());
+
 passport.use(new LocalStrategy(User.authenticate()));
-
-app.use((req, res, next) => {
-    console.log(req.session)
-    res.locals.currentUser = req.user;
-    next();
-})
-
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-const noteSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true
-    },
-    body: {
-        type: String,
-    },
-    date: {
-        type: String
-    }
-
-});
-
-const Note = mongoose.model('Note', noteSchema)
+app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
+    next();
+})
 
 app.engine('ejs', ejsMate)
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
 app.get("/notes", async (req, res) => {
+    console.log(req.user)
     const notes = await Note.find({})
     res.render('index.ejs', { notes, timeAgo });
 });
@@ -121,16 +125,16 @@ app.post('/register', async (req, res) => {
     const registeredUser = await User.register(user, password);
     req.login(registeredUser, err => {
         if (err) return next(err);
-        console.log('it works? maybe?')
         res.redirect('/notes');
     })
 
 })
 
-app.post("/login", passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), (req, res) => {
-    console.log(res.locals.currentUser)
-    res.redirect("/notes")
-})
+app.post('/login',
+    passport.authenticate('local', { failureRedirect: '/login' }),
+    function (req, res) {
+        res.redirect('/notes');
+    });
 
 
 app.listen(3000, () => {

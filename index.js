@@ -5,6 +5,7 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate')
 const User = require('./models/users')
 const Note = require('./models/notes')
+const bson = require('bson')
 // const cookieParser = require('cookie-parser');
 // const bodyParser = require('body-parser');
 
@@ -62,7 +63,6 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;
-    console.log(req.user)
     next();
 })
 
@@ -75,7 +75,7 @@ app.get("/", (req, res) => {
 })
 
 app.get("/notes", async (req, res) => {
-    const notes = await Note.find({})
+    const notes = await Note.find({ author: req.user._id })
     res.render('index.ejs', { notes, timeAgo });
 });
 
@@ -95,6 +95,7 @@ app.post("/notes/new", async (req, res) => {
 app.get("/notes/:id", async (req, res) => {
     const { id } = req.params;
     const note = await Note.findById(id).populate('author');
+    console.log(note)
     res.render('show.ejs', { note, timeAgo });
 })
 

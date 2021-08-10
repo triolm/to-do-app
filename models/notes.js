@@ -11,6 +11,9 @@ const noteSchema = new mongoose.Schema({
     },
     date: {
         type: String
+    },
+    author: {
+        type: String
     }
 
 });

@@ -5,12 +5,12 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate')
 const User = require('./models/users')
 const Note = require('./models/notes')
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-
+// const cookieParser = require('cookie-parser');
+// const bodyParser = require('body-parser');
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+
 const passportLocalMongoose = require('passport-local-mongoose');
 
 const TimeAgo = require('javascript-time-ago')
@@ -18,11 +18,14 @@ const TimeAgo = require('javascript-time-ago')
 const en = require('javascript-time-ago/locale/en')
 TimeAgo.addDefaultLocale(en)
 // Create formatter (English).
-const timeAgo = new TimeAgo('en-US')
+//const timeAgo = 
+const timeAgo = new TimeAgo('en-US');
+
 
 const mongoose = require('mongoose');
 const path = require('path');
 const { title } = require('process');
+const { get } = require('http');
 
 mongoose.connect('mongodb://localhost:27017/todoapp', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
@@ -50,8 +53,8 @@ app.use(session(sessionConfig))
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(cookieParser(sessionConfig.secret))
-app.use(express.bodyParser());
+// app.use(cookieParser(sessionConfig.secret))
+// app.use(express.bodyParser());
 
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -59,6 +62,7 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;
+    console.log(req.user)
     next();
 })
 
@@ -66,8 +70,11 @@ app.engine('ejs', ejsMate)
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
+app.get("/", (req, res) => {
+    res.send("potato")
+})
+
 app.get("/notes", async (req, res) => {
-    console.log(req.user)
     const notes = await Note.find({})
     res.render('index.ejs', { notes, timeAgo });
 });
@@ -80,14 +87,14 @@ app.get("/notes/new", async (req, res) => {
 app.post("/notes/new", async (req, res) => {
     const { title, body } = req.body
     const date = Date.now();
-    const newNote = new Note({ title, body, date });
+    const newNote = new Note({ title, body, date, author: req.user._id });
     await newNote.save();
     res.redirect(`/notes/${newNote._id}`);
 })
 
 app.get("/notes/:id", async (req, res) => {
     const { id } = req.params;
-    const note = await Note.findById(id);
+    const note = await Note.findById(id).populate('author');
     res.render('show.ejs', { note, timeAgo });
 })
 
@@ -128,6 +135,12 @@ app.post('/register', async (req, res) => {
         res.redirect('/notes');
     })
 
+})
+
+app.get('/logout', async (req, res) => {
+    await req.logout();
+    req.session.user_id = res.user;
+    res.redirect('/')
 })
 
 app.post('/login',

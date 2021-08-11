@@ -1,0 +1,15 @@
+<% layout('layouts/boilerplate')%>
+    <title>Register</title>
+
+    <div class="row">
+        <div class="card col-6 offset-3">
+            <form action="/notes/<%= note._id %>/share" method="POST">
+                <div class="card-body">
+                    <h2 class="pb-3">Share <%= note.title %> With...</h2>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Title">
+                        <button class="btn btn-success my-3">Share</button>
+            </form>
+        </div>
+    </div>

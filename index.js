@@ -75,8 +75,9 @@ app.get("/", (req, res) => {
 })
 
 app.get("/notes", async (req, res) => {
-    const notes = await Note.find({ author: req.user._id })
-    res.render('index.ejs', { notes, timeAgo });
+    const notes = await Note.find({ author: req.user._id }).sort({ date: -1 })
+    const sharedNotes = await Note.find({ sharedUsers: req.user._id }).sort({ date: -1 }
+    res.render('index.ejs', { notes, sharedNotes, timeAgo });
 });
 
 app.get("/notes/new", async (req, res) => {
@@ -120,6 +121,24 @@ app.delete("/notes/:id", async (req, res) => {
     res.redirect('/notes/');
 })
 
+app.get('/notes/:id/share', async (req, res) => {
+    const { id } = req.params;
+    const note = await Note.findById(id)
+    res.render('share.ejs', { note })
+});
+
+app.post('/notes/:id/share', async (req, res) => {
+    const { id } = req.params;
+    const { username } = req.body;
+    shareUser = await User.findOne({ username });
+    console.log("shareUser", shareUser)
+    const note = await Note.findById(id);
+    note.sharedUsers.push(shareUser._id);
+    await note.save();
+    console.log(note);
+    res.redirect(`/notes/${id}`);
+});
+
 app.get("/register", (req, res) => {
     res.render('register.ejs')
 })
@@ -135,7 +154,7 @@ app.post('/register', async (req, res) => {
         if (err) return next(err);
         res.redirect('/notes');
     })
-
+    passport.authenticate()
 })
 
 app.get('/logout', async (req, res) => {

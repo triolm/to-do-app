@@ -12,8 +12,13 @@ const noteSchema = new mongoose.Schema({
     date: {
         type: String
     },
-    author: { type: Schema.Types.ObjectId, ref: 'User' }
+    author: { type: Schema.Types.ObjectId, ref: 'User' },
+    sharedUsers: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 
 });
 
 module.exports = mongoose.model('Note', noteSchema)
+

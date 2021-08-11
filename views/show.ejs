@@ -16,20 +16,19 @@
                             </p>
                     </div>
                     <div class="m-auto p-2">
+                        <a class="btn btn-success d-inline" href="/notes/<%=note._id%>/share">Share</a>
                         <a class="btn btn-primary d-inline" href="/notes">Back to All Notes</a>
                         <a class="btn btn-primary" href="/notes/<%=note._id%>/edit">Edit Note</a>
                         <form class="d-inline" action="/notes/<%=note._id%>?_method=DELETE" method="POST">
                             <button class="btn btn-danger">Delete Note</button>
                         </form>
                     </div>
-
-                    <div class="card-footer text-muted">
-                        <%= timeAgo.format(new Date(parseInt(note.date))) %>
-                    </div>
-
+                </div>
+                <div class="card-footer text-muted">
+                    <%= timeAgo.format(new Date(parseInt(note.date))) %>
                 </div>
             </div>
-
+        </div>
     </body>
 
     </html>

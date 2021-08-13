@@ -1,11 +1,12 @@
 const express = require('express');
 const app = express();
-const session = require('express-session')
+const session = require('express-session');
 const methodOverride = require('method-override');
-const ejsMate = require('ejs-mate')
-const User = require('./models/users')
-const Note = require('./models/notes')
-const bson = require('bson')
+const ejsMate = require('ejs-mate');
+const User = require('./models/users');
+const Note = require('./models/notes');
+const flash = require('flash');
+// const bson = require('bson')
 // const cookieParser = require('cookie-parser');
 // const bodyParser = require('body-parser');
 
@@ -25,8 +26,7 @@ const timeAgo = new TimeAgo('en-US');
 
 const mongoose = require('mongoose');
 const path = require('path');
-const { title } = require('process');
-const { get } = require('http');
+const { hasAccess, isLoggedIn, isAuthor } = require('./middleware');
 
 mongoose.connect('mongodb://localhost:27017/todoapp', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
@@ -50,7 +50,7 @@ mongoose.set('useCreateIndex', true);
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(session(sessionConfig))
-
+app.use(flash())
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -74,68 +74,68 @@ app.get("/", (req, res) => {
     res.send("potato")
 })
 
-app.get("/notes", async (req, res) => {
-    const notes = await Note.find({ author: req.user._id }).sort({ date: -1 })
-    const sharedNotes = await Note.find({ sharedUsers: req.user._id }).sort({ date: -1 }
+app.get("/notes", isLoggedIn, async (req, res) => {
+    const notes = await Note.find({ author: req.user._id }).sort({ editDate: -1 })
+    const sharedNotes = await Note.find({ sharedUsers: req.user._id }).sort({ editDate: -1 })
     res.render('index.ejs', { notes, sharedNotes, timeAgo });
 });
 
-app.get("/notes/new", async (req, res) => {
+app.get("/notes/new", isLoggedIn, async (req, res) => {
     const notes = await Note.find({})
     res.render('new.ejs', { notes });
 });
 
-app.post("/notes/new", async (req, res) => {
+app.post("/notes/new", isLoggedIn, async (req, res) => {
     const { title, body } = req.body
     const date = Date.now();
-    const newNote = new Note({ title, body, date, author: req.user._id });
+    const newNote = new Note({ title, body, createDate:date, editDate:date, author: req.user._id });
     await newNote.save();
     res.redirect(`/notes/${newNote._id}`);
 })
 
-app.get("/notes/:id", async (req, res) => {
+app.get("/notes/:id", isLoggedIn, hasAccess, async (req, res) => {
     const { id } = req.params;
     const note = await Note.findById(id).populate('author');
-    console.log(note)
     res.render('show.ejs', { note, timeAgo });
 })
 
-app.get("/notes/:id/edit", async (req, res) => {
+app.get("/notes/:id/edit", isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
     const note = await Note.findById(id);
     res.render('edit.ejs', { note });
 })
 
-app.put("/notes/:id", async (req, res) => {
+app.put("/notes/:id", isLoggedIn, async (req, res) => {
     const { id } = req.params;
     const { title, body } = req.body;
     const date = Date.now();
-    const note = await Note.findByIdAndUpdate(id, { title, body, date });
+    const note = await Note.findByIdAndUpdate(id, { title, body, editDate:date });
+    req.flash("success", "Note updated sucessfully.")
     res.redirect(`/notes/${id}`);
 })
 
-app.delete("/notes/:id", async (req, res) => {
+app.delete("/notes/:id", isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
     const { title, body } = req.body;
     const note = await Note.findByIdAndDelete(id);
+    req.flash("success", "Note deleted sucessfully.")
     res.redirect('/notes/');
 })
 
-app.get('/notes/:id/share', async (req, res) => {
+app.get('/notes/:id/share', isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
     const note = await Note.findById(id)
     res.render('share.ejs', { note })
 });
 
-app.post('/notes/:id/share', async (req, res) => {
+app.post('/notes/:id/share', isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
     const { username } = req.body;
     shareUser = await User.findOne({ username });
-    console.log("shareUser", shareUser)
     const note = await Note.findById(id);
     note.sharedUsers.push(shareUser._id);
     await note.save();
-    console.log(note);
+    req.flash("success", `Note sucessfully shared with ${username}.`)
     res.redirect(`/notes/${id}`);
 });
 
@@ -154,18 +154,21 @@ app.post('/register', async (req, res) => {
         if (err) return next(err);
         res.redirect('/notes');
     })
+    req.flash('info', 'Welcome!')
     passport.authenticate()
 })
 
-app.get('/logout', async (req, res) => {
+app.get('/logout', isLoggedIn, async (req, res) => {
     await req.logout();
     req.session.user_id = res.user;
     res.redirect('/')
+    req.flash("success", "Logged out.")
 })
 
 app.post('/login',
     passport.authenticate('local', { failureRedirect: '/login' }),
-    function (req, res) {
+    (req, res) => {
+        req.flash("success", "Logged in sucessfully.")
         res.redirect('/notes');
     });
 

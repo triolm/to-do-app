@@ -4,15 +4,19 @@ const Schema = mongoose.Schema;
 const noteSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
     },
     body: {
         type: String,
+        required: true
     },
-    date: {
-        type: String
+    editDate: {
+        type: Number
     },
-    author: { type: Schema.Types.ObjectId, ref: 'User' },
+    createDate: {
+        type:Number,
+        required: true
+    },
+    author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     sharedUsers: [{
         type: Schema.Types.ObjectId,
         ref: 'User'

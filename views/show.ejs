@@ -6,26 +6,27 @@
             <div class="card offset-2 col-8 col-md-6 offset-md-3 p-0">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <%= note.title %>
+                        <%= note.title %> <span class="text-muted">- <%=note.author.username%></span>
                     </h5>
                     <div class="text-muted">
-                        <%=note.author.username%>
-                            </span>
-                            <p class="card-text">
-                                <%= note.body %>
-                            </p>
+                            <p class="card-text" style="white-space: pre-line;"><%= note.body %></p>
                     </div>
-                    <div class="m-auto p-2">
-                        <a class="btn btn-success d-inline" href="/notes/<%=note._id%>/share">Share</a>
-                        <a class="btn btn-primary d-inline" href="/notes">Back to All Notes</a>
-                        <a class="btn btn-primary" href="/notes/<%=note._id%>/edit">Edit Note</a>
-                        <form class="d-inline" action="/notes/<%=note._id%>?_method=DELETE" method="POST">
-                            <button class="btn btn-danger">Delete Note</button>
-                        </form>
+                    <div class="m-auto py-2">
+                        <a class="my-1 btn btn-primary" href="/notes">Back to All Notes</a>
+                        <% if(parseInt(currentUser._id)==parseInt(note.author._id)){ %>
+                            <a class="my-1 btn btn-primary" href="/notes/<%=note._id%>/edit">Edit Note</a>
+                            <a class="my-1 btn btn-success " href="/notes/<%=note._id%>/share">Share</a>
+                            <form class="d-inline" action="/notes/<%=note._id%>?_method=DELETE" method="POST">
+                                <button class="my-1 btn btn-danger">Delete Note</button>
+                            </form>
+                            <% } %>
                     </div>
                 </div>
                 <div class="card-footer text-muted">
-                    <%= timeAgo.format(new Date(parseInt(note.date))) %>
+                    <%= timeAgo.format(new Date(note.createDate)) %>
+                    <% if(note.createDate != note.editDate){ %> 
+                    (edited <%= timeAgo.format(new Date(note.editDate)) %>)
+                    <% } %> 
                 </div>
             </div>
         </div>

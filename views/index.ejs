@@ -24,11 +24,14 @@
                             class="btn btn-primary stretched-link mt-auto d-inline-block">View</a>
                     </div>
                     <div class="card-footer text-muted">
-                        <%= timeAgo.format(new Date(parseInt(note.date))) %>
+                        edited <%= timeAgo.format(new Date(parseInt(note.editDate))) %>
                     </div>
                 </div>
 
                 <% } %>
+                <% if(!notes.length) {%>
+                    <a class="m-3 btn btn-primary" href="/notes/new">New Note</a>
+                    <% } %>
         </div>
         <div>
             <h2 class="mx-5 mt-3">Shared With Me</h2>
@@ -54,11 +57,14 @@
                                 class="btn btn-primary stretched-link mt-auto d-inline-block">View</a>
                         </div>
                         <div class="card-footer text-muted">
-                            <%= timeAgo.format(new Date(parseInt(note.date))) %>
+                            edited <%= timeAgo.format(new Date(parseInt(note.editDate))) %>
                         </div>
                     </div>
 
                     <% } %>
+                    <% if(!sharedNotes.length) {%> 
+                        <p class="text-muted p-2">Nothing has been shared with you yet.</p>
+                        <% } %> 
             </div>
 
         </div>

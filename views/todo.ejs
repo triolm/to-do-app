@@ -1,0 +1,74 @@
+<% layout('layouts/boilerplate')%>
+    <title>All Notes</title>
+    <div>
+        <h2 class="mx-5 mt-3">Todo:</h2>
+        <div class="d-inline-flex flex-row flex-wrap justify-content-start px-5">
+            <% for(note of notes) { %>
+                <div class="card m-2" style="width: 15rem;">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                    <% if(note.dueDate) { %>
+                        <p class="m-0 card-text text-danger">
+                            Due <%= timeAgo.format(new Date(note.dueDate)) %>
+                         </p>
+                         <% } %> 
+                        <h5 class="card-title">
+                            <% if(note.title.length> 20){ %>
+                                <%= note.title.slice(0, 20) %>... <span class="text-muted">- <%=note.author.username%></span>
+                                    <% } else{ %>
+                                        <%= note.title %> <span class="text-muted">- <%=note.author.username%></span>
+                                            <% } %>
+                        </h5>
+                        <p class="card-text">
+                            <% if(note.body.length> 30){ %>
+                                <%= note.body.slice(0, 30) %>... 
+                                    <% } else{ %>
+                                        <%= note.body %>
+                                            <% } %>
+                        </p>
+                        <a href="/notes/<%=note._id %> "
+                            class="btn btn-primary stretched-link mt-auto d-inline-block">View</a>
+                    </div>
+                    <div class="card-footer text-muted">
+                        edited <%= timeAgo.format(new Date(parseInt(note.editDate))) %>
+                    </div>
+                </div>
+
+                <% } %>
+                <% if(!notes.length) {%>
+                    <p class="text-muted">You have nothing on your to do list.</p>
+                    <% } %>
+        </div>
+        <h2 class="mx-5 mt-3">Overdue:</h2>
+        <div class="d-inline-flex flex-row flex-wrap justify-content-start px-5">
+            <% for(note of overdue) { %>
+                <div class="card m-2" style="width: 15rem;">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                    <% if(note.dueDate) { %>
+                        <p class="m-0 card-text text-danger">
+                            Due <%= timeAgo.format(new Date(note.dueDate)) %>
+                         </p>
+                         <% } %> 
+                        <h5 class="card-title">
+                            <% if(note.title.length> 20){ %>
+                                <%= note.title.slice(0, 20) %>... <span class="text-muted">- <%=note.author.username%></span>
+                                    <% } else{ %>
+                                        <%= note.title %> <span class="text-muted">- <%=note.author.username%></span>
+                                            <% } %>
+                        </h5>
+                        <p class="card-text">
+                            <% if(note.body.length> 30){ %>
+                                <%= note.body.slice(0, 30) %>...
+                                    <% } else{ %>
+                                        <%= note.body %>
+                                            <% } %>
+                        </p>
+                        <a href="/notes/<%=note._id %> "
+                            class="btn btn-primary stretched-link mt-auto d-inline-block">View</a>
+                    </div>
+                    <div class="card-footer text-muted">
+                        edited <%= timeAgo.format(new Date(parseInt(note.editDate))) %>
+                    </div>
+                </div>
+
+                <% } %>
+        </div>

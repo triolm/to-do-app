@@ -26,7 +26,7 @@ const timeAgo = new TimeAgo('en-US');
 
 const mongoose = require('mongoose');
 const path = require('path');
-const { hasAccess, isLoggedIn, isAuthor } = require('./middleware');
+const { hasAccess, isLoggedIn, isAuthor, convertToUnix } = require('./middleware');
 
 mongoose.connect('mongodb://localhost:27017/todoapp', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
@@ -75,8 +75,8 @@ app.get("/", (req, res) => {
 })
 
 app.get("/notes", isLoggedIn, async (req, res) => {
-    const notes = await Note.find({ author: req.user._id }).sort({ editDate: -1 })
-    const sharedNotes = await Note.find({ sharedUsers: req.user._id }).sort({ editDate: -1 })
+    const notes = await Note.find({ author: req.user._id }).sort({ editDate: -1 }).populate('author')
+    const sharedNotes = await Note.find({ sharedUsers: req.user._id }).sort({ editDate: -1 }).populate('author')
     res.render('index.ejs', { notes, sharedNotes, timeAgo });
 });
 
@@ -86,24 +86,32 @@ app.get("/notes/new", isLoggedIn, async (req, res) => {
 });
 
 app.post("/notes/new", isLoggedIn, async (req, res) => {
-    const { title, body } = req.body
-    const date = Date.now();
-    const newNote = new Note({ title, body, createDate:date, editDate:date, author: req.user._id });
+    const { title, body, date,time } = req.body
+    const dueDate = convertToUnix(date,time);
+    const createDate = Date.now();
+    const newNote = new Note({ title, body, createDate:createDate, editDate:createDate, author: req.user._id});
+    if(dueDate) newNote.dueDate = dueDate;
     await newNote.save();
     res.redirect(`/notes/${newNote._id}`);
+});
+
+app.get('/notes/todo', isLoggedIn, async (req,res) =>{
+    const notes = await Note.find({ $or: [{ author: req.user._id }, { sharedUsers: req.user._id }], dueDate: { $gte: Date.now()} }).sort({ editDate: -1 }).populate('author')
+    const overdue = await Note.find({ $or: [{ author: req.user._id }, { sharedUsers: req.user._id }], isCompleted:!true, dueDate: { $lt: Date.now()} }).sort({ editDate: -1 }).populate('author')
+    res.render('todo.ejs', { notes, overdue, timeAgo });
 })
 
 app.get("/notes/:id", isLoggedIn, hasAccess, async (req, res) => {
     const { id } = req.params;
     const note = await Note.findById(id).populate('author');
     res.render('show.ejs', { note, timeAgo });
-})
+});
 
 app.get("/notes/:id/edit", isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
     const note = await Note.findById(id);
     res.render('edit.ejs', { note });
-})
+});
 
 app.put("/notes/:id", isLoggedIn, async (req, res) => {
     const { id } = req.params;
@@ -112,6 +120,14 @@ app.put("/notes/:id", isLoggedIn, async (req, res) => {
     const note = await Note.findByIdAndUpdate(id, { title, body, editDate:date });
     req.flash("success", "Note updated sucessfully.")
     res.redirect(`/notes/${id}`);
+});
+
+app.patch('/notes/:id', isLoggedIn, hasAccess, async (req,res) =>{
+    const {id} = req.params;
+    const note = await Note.findById(id)
+    note.isCompleted = note.isCompleted ? false : true;
+    await note.save()
+    res.redirect(`/notes/${id}`)
 })
 
 app.delete("/notes/:id", isLoggedIn, isAuthor, async (req, res) => {
@@ -120,7 +136,7 @@ app.delete("/notes/:id", isLoggedIn, isAuthor, async (req, res) => {
     const note = await Note.findByIdAndDelete(id);
     req.flash("success", "Note deleted sucessfully.")
     res.redirect('/notes/');
-})
+});
 
 app.get('/notes/:id/share', isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
@@ -141,10 +157,10 @@ app.post('/notes/:id/share', isLoggedIn, isAuthor, async (req, res) => {
 
 app.get("/register", (req, res) => {
     res.render('register.ejs')
-})
+});
 app.get("/login", (req, res) => {
     res.render('login.ejs')
-})
+});
 
 app.post('/register', async (req, res) => {
     const { email, username, password } = req.body;
@@ -156,14 +172,14 @@ app.post('/register', async (req, res) => {
     })
     req.flash('info', 'Welcome!')
     passport.authenticate()
-})
+});
 
 app.get('/logout', isLoggedIn, async (req, res) => {
     await req.logout();
     req.session.user_id = res.user;
     res.redirect('/')
     req.flash("success", "Logged out.")
-})
+});
 
 app.post('/login',
     passport.authenticate('local', { failureRedirect: '/login' }),
@@ -175,4 +191,4 @@ app.post('/login',
 
 app.listen(3000, () => {
     console.log("listening on port 3000")
-})
+});

@@ -25,3 +25,12 @@ module.exports.isAuthor = async (req, res, next) => {
     }
     next();
 }
+
+module.exports.convertToUnix = (date,time) =>{
+    let unixDate = new Date(date);
+    unixDate = unixDate.getTime()
+    seconds = new Date('1970-01-01T' + time + 'Z').getTime();
+    let offset = new Date().getTimezoneOffset();
+    offset *= 60000;
+    return unixDate + seconds + offset;
+}

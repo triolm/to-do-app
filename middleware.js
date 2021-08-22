@@ -20,12 +20,13 @@ module.exports.isAuthor = async (req, res, next) => {
     const { id } = req.params;
     const note = await Note.findById(id)
     if (parseInt(note.author) != parseInt(req.user._id)) {
-        res.flash("danger", "You do not have permission to do that.");
+        req.flash("danger", "You do not have permission to do that.");
+        console.log(res.locals.flash)
         return res.redirect("/notes")
     }
     next();
 }
-
+//definitely a middleware. Totally.
 module.exports.convertToUnix = (date,time) =>{
     let unixDate = new Date(date);
     unixDate = unixDate.getTime()

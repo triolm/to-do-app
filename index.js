@@ -79,7 +79,7 @@ app.get('/friends', async(req,res) =>{
 })
 
 app.get("/notes", isLoggedIn, async (req, res) => {
-    const notes = await Note.find({ author: req.user._id }).sort({ editDate: -1 }).populate('author')
+    const notes = await Note.find({ author: req.user._id }).sort({ editDate: -1 })
     const sharedNotes = await Note.find({ sharedUsers: req.user._id }).sort({ editDate: -1 }).populate('author')
     res.render('index.ejs', { notes, sharedNotes, timeAgo });
 });
@@ -187,8 +187,9 @@ app.get('/logout', isLoggedIn, async (req, res) => {
 });
 
 app.post('/login',
-    passport.authenticate('local', { failureRedirect: '/login' }),
+    passport.authenticate('local', { failureRedirect: '/login', }),
     (req, res) => {
+        res.locals.errors = req.flash("error");
         req.flash("success", "Logged in sucessfully.")
         res.redirect('/notes');
     });

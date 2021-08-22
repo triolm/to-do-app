@@ -14,6 +14,7 @@
 </head>
 
 <body>
+    <div class="w-100">
     <%- include('../partials/navbar')%>
     <% while(flash.length){ %>
         <div class="alert alert-<%=flash[0].type%>  alert-dismissible fade show col-8 offset-2" role="alert">
@@ -23,6 +24,7 @@
         <% flash.shift() %> 
         <% } %>
         <%-body %>
+        </div>
 </body>
 
 </html>

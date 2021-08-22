@@ -14,7 +14,7 @@
                         <%= note.title %> <span class="text-muted">- <%=note.author.username%></span>
                     </h5>
                     <div class="text-muted">
-                        <p class="card-text" style="white-space: pre-line;"><%= note.body %>
+                        <p class="card-text" style="white-space: pre-line;"><%- md.render(note.body) %>
                         </p>
                     </div>
                     <div class="m-auto py-2">

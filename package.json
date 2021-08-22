@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "bootstrap-icons": "^1.5.0",
     "bson": "^4.4.1",
     "cookie-parser": "^1.4.5",
     "ejs": "^3.1.6",
@@ -19,6 +20,7 @@
     "express-session": "^1.17.2",
     "flash": "^1.1.0",
     "javascript-time-ago": "^2.3.8",
+    "markdown-it": "^12.2.0",
     "method-override": "^3.0.0",
     "mongoose": "^5.13.5",
     "passport": "^0.4.1",

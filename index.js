@@ -6,9 +6,9 @@ const ejsMate = require('ejs-mate');
 const User = require('./models/users');
 const Note = require('./models/notes');
 const flash = require('flash');
+const markdownIt = require('markdown-it')
+md = new markdownIt();
 // const bson = require('bson')
-// const cookieParser = require('cookie-parser');
-// const bodyParser = require('body-parser');
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -74,6 +74,10 @@ app.get("/", (req, res) => {
     res.send("potato")
 })
 
+app.get('/friends', async(req,res) =>{
+
+})
+
 app.get("/notes", isLoggedIn, async (req, res) => {
     const notes = await Note.find({ author: req.user._id }).sort({ editDate: -1 }).populate('author')
     const sharedNotes = await Note.find({ sharedUsers: req.user._id }).sort({ editDate: -1 }).populate('author')
@@ -82,7 +86,7 @@ app.get("/notes", isLoggedIn, async (req, res) => {
 
 app.get("/notes/new", isLoggedIn, async (req, res) => {
     const notes = await Note.find({})
-    res.render('new.ejs', { notes });
+    res.render('new.ejs', { notes, md });
 });
 
 app.post("/notes/new", isLoggedIn, async (req, res) => {
@@ -101,10 +105,11 @@ app.get('/notes/todo', isLoggedIn, async (req,res) =>{
     res.render('todo.ejs', { notes, overdue, timeAgo });
 })
 
+
 app.get("/notes/:id", isLoggedIn, hasAccess, async (req, res) => {
     const { id } = req.params;
     const note = await Note.findById(id).populate('author');
-    res.render('show.ejs', { note, timeAgo });
+    res.render('show.ejs', { note, timeAgo, md });
 });
 
 app.get("/notes/:id/edit", isLoggedIn, isAuthor, async (req, res) => {

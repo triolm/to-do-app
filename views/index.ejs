@@ -1,8 +1,12 @@
 <% layout('layouts/boilerplate')%>
     <title>All Notes</title>
     <div>
-        <h2 class="mx-5 mt-3">My Notes</h2>
-        <div class="d-inline-flex flex-row flex-wrap justify-content-start px-5">
+        <div>
+        <h2 class="ms-5 me-2 d-inline">My Notes</h2><button class="btn btn-primary d-inline m-0 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg p-0 mb-1" viewBox="0 0 16 16">
+            <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
+          </svg></button>
+        </div>
+        <div class="d-inline-flex flex-row flex-wrap justify-content-start px-sm-5 w-100">
             <% for(note of notes) { %>
                 <div class="card m-2" style="width: 15rem;">
                     <div class="card-body d-flex flex-column justify-content-between">
@@ -40,7 +44,7 @@
         </div>
         <div>
             <h2 class="mx-5 mt-3">Shared With Me</h2>
-            <div class="d-inline-flex flex-row flex-wrap justify-content-center px-5">
+            <div class="d-inline-flex flex-row flex-wrap justify-content-start px-sm-5 w-100">
                 <% for(note of sharedNotes) { %>
                     <div class="card m-2" style="width: 15rem;">
                         <div class="card-body d-flex flex-column justify-content-between">

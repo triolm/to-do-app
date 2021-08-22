@@ -28,7 +28,13 @@
                             <% } %>
                             <% if(note.dueDate > 0){ %> 
                             <form class="d-inline" action="/notes/<%=note._id%>?_method=PATCH" method="POST">
-                                <button class="my-1 btn btn-info">Done</button>
+                                <button class="my-1 btn btn-success">
+                                    <% if(note.isCompleted){ %>
+                                    Done
+                                    <% }else{ %>
+                                        Not Done 
+                                        <% } %> 
+                                </button>
                             </form>
                             <% } %> 
                     </div>

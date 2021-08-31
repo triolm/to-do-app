@@ -3,7 +3,7 @@ const router = express.Router();
 
 const User = require('../models/users');
 const Note = require('../models/notes');
-const { hasAccess, isLoggedIn, isAuthor, convertToUnix } = require('../middleware');
+const { hasAccess, isLoggedIn, isAuthor, timeConvert } = require('../middleware');
 
 const TimeAgo = require('javascript-time-ago')
 const en = require('javascript-time-ago/locale/en')
@@ -22,17 +22,11 @@ router.get("/new", isLoggedIn, async (req, res) => {
     res.render('new.ejs', { notes, md });
 });
 
-router.post("/new", isLoggedIn, async (req, res) => {
-    const { title, body, date, time } = req.body
-    const dueDate = convertToUnix(date, time);
-    if (dueDate == "nodate") {
-        req.flash("danger", "Date required");
-        res.redirect("/notes/new");
-        return;
-    }
+router.post("/new", isLoggedIn, timeConvert, async (req, res) => {
+    const { title, body } = req.body
     const createDate = Date.now();
     const newNote = new Note({ title, body, createDate: createDate, editDate: createDate, author: req.user._id });
-    if (dueDate) newNote.dueDate = dueDate;
+    if (res.locals.dueDate) newNote.dueDate = res.locals.dueDate;
     await newNote.save();
     res.redirect(`/notes/${newNote._id}`);
 });
@@ -91,6 +85,11 @@ router.post('/:id/share', isLoggedIn, isAuthor, async (req, res) => {
     const { id } = req.params;
     const { username } = req.body;
     shareUser = await User.findOne({ username });
+    if(!shareUser){
+        req.flash("danger","User not found.")
+        res.redirect(`/notes/${id}`);
+        return;
+    }
     const note = await Note.findById(id);
     note.sharedUsers.push(shareUser._id);
     await note.save();

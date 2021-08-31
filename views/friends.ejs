@@ -17,12 +17,12 @@
 <% for(friend of friends){ %> 
     <div class="card col-6 offset-3 my-3">
             <div class="card-body">
-                <h5 class="card-title mb-3">
+                <h4 class="card-title mb-3">
                     <%=friend.username %>
-                </h5>
+                </h4>
                 <% if(friend.bio){ %>
                     <div>
-                        <h6 class="card-subtitle text-muted">About Me</h6>
+                        <h6 class="card-subtitle">About Me</h6>
                         <p class="card-text">
                             <%=friend.bio %>
                         </p>

@@ -26,21 +26,23 @@ module.exports.isAuthor = async (req, res, next) => {
     }
     next();
 }
-//definitely a middleware. Totally.
-module.exports.convertToUnix = (date,time) =>{
-    if(!date && !time) return;
-    else if(!date) return "nodate"
-    let unixDate = new Date(date);
-    unixDate = unixDate.getTime(); 
-    if (!time){ 
-        time = new Date().toLocaleTimeString();
-        console.log(time)
-        time = time.slice(0,5)
-        console.log(time)
+
+module.exports.timeConvert = (req,res,next) => {
+    const { date, time } = req.body
+    if (!date && !time) return next();
+    else if (!date) {
+        req.flash("danger", "Date required");
+        return res.redirect('/notes/new');
     }
+    else if (!time) {
+        req.flash("danger", "Time required");
+        return res.redirect('/notes/new');
+    }
+    let unixDate = new Date(date);
+    unixDate = unixDate.getTime();
     seconds = new Date('1970-01-01T' + time + 'Z').getTime();
-    console.log(seconds);
     let offset = new Date().getTimezoneOffset();
     offset *= 60000;
-    return unixDate + seconds + offset;
+    res.locals.dueDate = unixDate + seconds + offset;
+    next();
 }

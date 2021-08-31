@@ -86,12 +86,20 @@ app.get('/friends', isLoggedIn, async(req,res) =>{
 app.post('/friends', isLoggedIn, async(req,res) => {
     const { username } = req.body;
     const friend = await User.findOne({ username });
+    if (!friend) {
+        req.flash("danger", "User not found.")
+        res.redirect(`/friends`);
+        return;
+    }
     const user = req.user;
     user.friends.push(friend._id)
     await user.save();
     res.redirect('/friends')
 })
 
+app.all('*', (req,res) =>{
+    res.send("error")
+})
 
 app.listen(3000, () => {
     console.log("listening on port 3000")

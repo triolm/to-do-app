@@ -2,9 +2,9 @@
     <title>All Notes</title>
     <div>
         <div>
-        <h2 class="ms-5 me-2 d-inline">My Notes</h2><button class="btn btn-primary d-inline m-0 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg p-0 mb-1" viewBox="0 0 16 16">
+        <h2 class="ms-5 me-2 d-inline">My Notes</h2><a href="/notes/new" class="btn btn-primary d-inline-block m-0 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg p-0 mb-1" viewBox="0 0 16 16">
             <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z"/>
-          </svg></button>
+          </svg></a>
         </div>
         <div class="d-inline-flex flex-row flex-wrap justify-content-start px-sm-5 w-100">
             <% for(note of notes) { %>
@@ -24,16 +24,16 @@
                         </h5>
                         <p class="card-text">
                             <% if(note.body.length> 30){ %>
-                                <%= note.body.slice(0, 30) %>...
+                                <%- md.renderInline(note.body.slice(0, 30)) %>...
                                     <% } else{ %>
-                                        <%= note.body %>
+                                        <%- md.renderInline(note.body) %>
                                             <% } %>
                         </p>
                         <a href="/notes/<%=note._id %> "
                             class="btn btn-primary stretched-link mt-auto d-inline-block">View</a>
                     </div>
                     <div class="card-footer text-muted">
-                        edited <%= timeAgo.format(new Date(parseInt(note.editDate))) %>
+                        <% if(note.editDate != note.createDate){ %> edited <% } %>  <%= timeAgo.format(new Date(parseInt(note.editDate))) %>
                     </div>
                 </div>
 
@@ -62,16 +62,18 @@
                             </h5>
                             <p class="card-text">
                                 <% if(note.body.length> 30){ %>
-                                    <%= note.body.slice(0, 30) %>...
+                                    <%- md.renderInline(note.body.slice(0, 30)) %>...
                                         <% } else{ %>
-                                            <%= note.body %>
+                                        <%- md.renderInline(note.body) %>
+
                                                 <% } %>
                             </p>
                             <a href="/notes/<%=note._id %> "
                                 class="btn btn-primary stretched-link mt-auto d-inline-block">View</a>
                         </div>
                         <div class="card-footer text-muted">
-                            edited <%= timeAgo.format(new Date(parseInt(note.editDate))) %>
+                        <% if(note.editDate !=note.createDate){ %> edited <% } %>
+                                <%= timeAgo.format(new Date(parseInt(note.editDate))) %>
                         </div>
                     </div>
 

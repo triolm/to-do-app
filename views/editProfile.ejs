@@ -1,0 +1,21 @@
+<% layout('/layouts/boilerplate') %>
+<div class="row">
+    <div class="col-md-8 offset-2">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <%=currentUser.username %>
+                </h5>
+                <form action="/profile?_method=PATCH" method="POST">
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3"><%=currentUser.bio %></textarea>
+                    </div>
+                    <button class="btn btn-primary">
+                        Update
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -7,7 +7,16 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         unique: true
-    }
+    },
+    bio: {
+        type: String,
+    },
+    friends: [
+        {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+        }
+    ] 
 });
 UserSchema.plugin(passportLocalMongoose)
 

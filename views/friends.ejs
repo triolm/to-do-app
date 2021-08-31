@@ -1,0 +1,35 @@
+<% layout('layouts/boilerplate')%>
+
+<div class="row">
+    <div class="card col-6 offset-3 my-3">
+        <form action="/friends" method="POST">
+            <div class="card-body">
+                <h2 class="pb-3">Add Friend</h2>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="username">
+                    <button class="btn btn-success my-3">Add</button>
+                 </div>
+            </div>
+        </form>
+    </div>
+
+<% for(friend of friends){ %> 
+    <div class="card col-6 offset-3 my-3">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    <%=friend.username %>
+                </h5>
+                <% if(friend.bio){ %>
+                    <div>
+                        <h6 class="card-subtitle text-muted">About Me</h6>
+                        <p class="card-text">
+                            <%=friend.bio %>
+                        </p>
+                    </div>
+                    <% } %>
+            <a href="/notes/users/<%=friend._id %>" class="my-3 btn btn-primary">Notes</a>
+            </div>
+    </div>
+<% } %> 
+</div>

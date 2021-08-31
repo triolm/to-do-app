@@ -1,0 +1,17 @@
+<% layout('/layouts/boilerplate') %>
+<div class="row">
+    <div class="col-md-8 offset-2">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><%=currentUser.username %> </h5>
+                <% if(currentUser.bio){ %> 
+                <div>
+                    <h6 class="card-subtitle text-muted">About Me</h6>
+                    <p class="card-text"><%=currentUser.bio %> </p>
+                </div>
+                <% } %> 
+                <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>

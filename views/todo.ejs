@@ -1,7 +1,9 @@
 <% layout('layouts/boilerplate')%>
     <title>All Notes</title>
     <div>
+        <% if(notes.length){ %>
         <h2 class="mx-5 mt-3">Todo:</h2>
+        <% } %> 
         <div class="d-inline-flex flex-row flex-wrap justify-content-start px-sm-5 w-100">
             <% for(note of notes) { %>
                 <div class="card m-2" style="width: 15rem;">
@@ -38,7 +40,9 @@
                     <p class="text-muted ms-s-0 ms-5">You have nothing on your to do list.</p>
                     <% } %>
         </div>
+        <% if(overdue.length){ %> 
         <h2 class="mx-5 mt-3">Overdue:</h2>
+        <% } %> 
         <div class="d-inline-flex flex-row flex-wrap justify-content-start px-sm-5 w-100">
             <% for(note of overdue) { %>
                 <div class="card m-2" style="width: 15rem;">

@@ -14,7 +14,7 @@
                         <%= note.title %> <span class="text-muted">- <%=note.author.username%></span>
                     </h5>
                     <div class="text-muted">
-                        <p class="card-text" style="white-space: pre-line;"><%- md.render(note.body) %>
+                        <p class="card-text" style="white-space: pre-line;"><%- md.renderInline(note.body) %>
                         </p>
                     </div>
                     <div class="m-auto py-2">
@@ -30,9 +30,9 @@
                             <form class="d-inline" action="/notes/<%=note._id%>?_method=PATCH" method="POST">
                                 <button class="my-1 btn btn-success">
                                     <% if(note.isCompleted){ %>
-                                    Done
+                                    Not Done
                                     <% }else{ %>
-                                        Not Done 
+                                        Done 
                                         <% } %> 
                                 </button>
                             </form>
